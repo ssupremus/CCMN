@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="map.css">
+    <title>Third floor</title>
+</head>
+<body id="bounty">
+<script src="./api.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+	var showingTooltip;
+    document.onmouseover = function(e) {
+      var target = e.target;
+      var tooltip = target.getAttribute('datatooltip');
+      if (!tooltip) return;
+      var tooltipElem = document.createElement('div');
+      tooltipElem.className = 'tooltip';
+      tooltipElem.innerHTML = tooltip;
+      document.body.appendChild(tooltipElem);
+      var coords = target.getBoundingClientRect();
+      var left = coords.left + (target.offsetWidth - tooltipElem.offsetWidth) / 2;
+      if (left < 0) left = 0;
+
+      var top = coords.top - tooltipElem.offsetHeight - 5;
+      if (top < 0) {
+        top = coords.top + target.offsetHeight + 5;
+      }
+      tooltipElem.style.left = left + 'px';
+      tooltipElem.style.top = top + 'px';
+      showingTooltip = tooltipElem;
+    };
+
+    document.onmouseout = function(e) {
+      if (showingTooltip) {
+        document.body.removeChild(showingTooltip);
+        showingTooltip = null;
+      }
+    };
+	function create(addr, search) {
+    var users = get_online_users_by_floor(3);
+    var len = users.length;
+    var tmp;
+    for (var i = 0; i < len; i++) {
+        var elem = document.createElement('div');
+        elem.id = "user" + i.toString();
+        elem.setAttribute("class", "point");
+        elem.setAttribute("datatooltip", users[i].mac.toString());
+        if (addr == users[i].mac.toString()) {
+          elem.className = "player";
+        }
+        if (search != undefined && search == users[i].mac.toString()) {
+          elem.className = "searchpoint";
+        }
+        elem.style.left = (users[i].x / 1.761 + 250).toString() + "px";
+        elem.style.top = (users[i].y / 1.700 + 80 + 50).toString() + "px";
+        elem.innerHTML = '';
+        function insertAfter(elem, refElem) {
+          return refElem.parentNode.insertBefore(elem, refElem.nextSibling);
+        }
+        var parent = document.getElementById("map-container");
+        insertAfter(elem, parent.firstChild);
+        insertAfter(elem, parent.lastChild);
+    }
+    refresh(len, addr, search);
+  }
+
+  function refresh(len, addr, search) {
+    setTimeout(function(){
+      var parent = document.getElementById("map-container");;
+      if (len > 0) {
+        for (var i = len - 1; i >= 0; i--) {
+          var w = document.getElementById("user" + i.toString());
+          if (w.id != undefined) {
+            parent.removeChild(w);
+          }
+        }
+      }
+      create(addr, search);
+    }, 5000);
+  }
+
+  function auth() {
+    var start = 0;
+    var end = 0;
+    var str = window.location.href;
+    for (var i = 0; i < str.length; i++) {
+      if (str[i] == "=") {
+        start = i + 1;
+        break ;
+      }
+    }
+    for (var i = start; i < str.length; i++) {
+      if (str[i] == "?") {
+        end = i;
+        break ;
+      }
+    }
+    var login = str.substring(start, end);
+    return login;
+  }
+
+  function auth2() {
+    var start = 0;
+    var end = 0;
+    var str = window.location.href;
+    for (var i = 0; i < str.length; i++) {
+      if (str[i] == "=") {
+        start = i + 1;
+        break ;
+      }
+    }
+    for (var i = start; i < str.length; i++) {
+      if (str[i] == "?") {
+        end = i;
+        break ;
+      }
+    }
+    for (var i = end; i < str.length; i++) {
+      if (str[i] == "=") {
+        start = i + 1;
+        break ;
+      }
+    }
+    for (var i = start; i < str.length; i++) {
+      end = i + 1;
+    }
+    var macaddr = str.substring(start, end);
+    return macaddr;
+  }
+
+function searching() {
+    var j = 0;
+    var s = 0;
+    var q = document.getElementById("search");
+    if (q.value == "") {
+      s = 10;
+    }
+    else {
+      for (var g = 1; g <= 3; g++) {
+          var users = get_online_users_by_floor(g);
+          for (var i = 0; i < users.length; i++) {
+            if (users[i].mac.toString() == q.value) {
+                s = g;
+                j = i;
+                break ;
+            }
+          }
+      }
+    }
+    var login;
+    var macaddr;
+    login = auth();
+    macaddr = auth2();
+    switch(s) {
+      case 10:
+        document.getElementById("content").innerHTML = "Search field cannot be empty!";
+        break ;
+      case 1:
+        document.getElementById("content").innerHTML = "User with mac address " + q.value + ' is now on the first floor. <br><a href="map1.html?login=' + login + '?macaddr=' + macaddr + '" class="goto">Click here to go to the 1st floor</a>';
+        break ;
+      case 2:
+        document.getElementById("content").innerHTML = "User with mac address " + q.value + ' is now on the second floor. <br><a href="map2.html" class="goto">Click here to go to the 2nd floor</a>';
+        break ;
+      case 3:
+        document.getElementById("content").innerHTML = "User with mac address " + q.value + ' is now on the third floor.';
+        break ;
+      default:
+        document.getElementById("content").innerHTML = "Currently we cannot find the user with mac address '" + q.value + "'.<br> Please, try again later or change the mac address you are looking for.";
+    }
+    create(macaddr, q.value);
+  }
+
+$(document).ready(function getinf(){
+    var start = 0;
+    var end = 0;
+    var s;
+    var str = window.location.href;
+    for (var i = 0; i < str.length; i++) {
+      if (str[i] == "=") {
+        start = i + 1;
+        break ;
+      }
+    }
+    for (var i = start; i < str.length; i++) {
+      if (str[i] == "?") {
+        end = i;
+        break ;
+      }
+    }
+    var login = str.substring(start, end);
+    for (var i = end; i < str.length; i++) {
+      if (str[i] == "=") {
+        start = i + 1;
+        break ;
+      }
+    }
+    for (var i = start; i < str.length; i++) {
+      end = i + 1;
+    }
+    var macaddr = str.substring(start, end);
+    var g = 1;
+    if (macaddr == "") {
+      s = 10;
+    }
+    else {
+      for (var g = 1; g <= 3; g++) {
+          var users = get_online_users_by_floor(g);
+          for (var i = 0; i < users.length; i++) {
+            if (users[i].mac.toString() == macaddr) {
+                s = g;
+                break ;
+            }
+          }
+      }
+    }
+    if (login.length < 1) {
+      s = 10;
+    }
+    if (login.toString() === "Guest" && macaddr === "Guest") {
+      s = 33;
+    }
+    switch (s) {
+      case 10:
+        window.open("index.html", "_self");
+        break ;
+      case 1:
+        document.getElementById("happy").innerHTML = "Hi, " + login.toString() + "! We are glad to see you on the first floor!";
+        break ;
+      case 2:
+        document.getElementById("happy").innerHTML = "Hi, " + login.toString() + "! We are glad to see you on the second floor!";
+        break ;
+      case 3:
+        document.getElementById("happy").innerHTML = "Hi, " + login.toString() + "! We are glad to see you on the third floor!";
+        break ;
+      case 33:
+        document.getElementById("happy").innerHTML = "You entered as anonymous.";
+        break ;
+      default:
+        window.open("index.html", "_self");
+    }
+    document.getElementById("l1").setAttribute('href', 'map1.html?login=' + login.toString() + '?macaddr=' + macaddr);
+    document.getElementById("l2").setAttribute('href', 'map2.html?login=' + login.toString() + '?macaddr=' + macaddr);
+    document.getElementById("l3").setAttribute('href', 'map3.html?login=' + login.toString() + '?macaddr=' + macaddr);
+    document.getElementById("l4").setAttribute('href', 'statistics.html?login=' + login.toString() + '?macaddr=' + macaddr);
+    document.getElementById("l5").setAttribute('href', 'analytics.html?login=' + login.toString() + '?macaddr=' + macaddr);
+    var search;
+    create(macaddr, search);
+  });
+
+function byebye() {
+  if (confirm("Are you sure?")) {
+    window.open("index.html", "_self");
+  }
+}
+
+</script>
+  <div class="head">
+    <p class="salut">CCMN</p>
+    <input id="submit" onclick="searching()" class="submit" type="submit" value="SEARCH">
+    <input id="search" class="search" type="search" name="search" value="" placeholder="Input the mac-address">
+  </div>
+  <div class="tab">
+    <a href="map1.html" id="l1"><button class="tablinks">First floor</button></a>
+    <a href="map2.html" id="l2"><button class="tablinks">Second floor</button></a>
+    <a href="map3.html" id="l3"><button class="tablinks">Third floor</button></a>
+    <a href="statistics.html" id="l4"><button class="tablinks">Statistics, Correlations and Forecast</button></a>
+    <a href="analytics.html" id="l5"><button class="tablinks">Analytics, Presence and Floor congestion</button></a>
+    <button class="tablinks" onclick="byebye()">Log out</button>
+  </div>
+  <div id="happy" class="happy"></div>
+	<div id="map-container" class="map-container">
+		<img id="third-floor" class="floor" src="floormaps/3dfloor.png" onload="create()">
+	</div>
+  <div id="content" class="content"></div>
+  <div class="footer"><a href="https://gitlab.com/Wismut"><img src="img/gl.svg" height="23px">mivanov   <a href="https://github.com/ssupremus"><img src="img/gh.png" height="25px">ysushkov</a></div>
+</body>
+</html>

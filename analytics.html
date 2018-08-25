@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="map.css">
+    <title>Analytics and Presence</title>
+</head>
+<body id="bounty">
+<script src="./api.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="moment-with-locales.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="./stat.js"></script>
+  <div class="head">
+    <p class="salut">CCMN</p>
+  </div>
+  <div class="tab">
+    <a href="map1.html" id="l1"><button class="tablinks">First floor</button></a>
+    <a href="map2.html" id="l2"><button class="tablinks">Second floor</button></a>
+    <a href="map3.html" id="l3"><button class="tablinks">Third floor</button></a>
+    <a href="statistics.html" id="l4"><button class="tablinks">Statistics, Correlations and Forecast</button></a>
+    <a href="analytics.html" id="l5"><button class="tablinks">Analytics, Presence and Floor congestion</button></a>
+    <button class="tablinks" onclick="byebye()">Log out</button>
+  </div>
+  <div id="happy" class="happy"></div>
+  <div id="piechart" class="piechart"></div>
+  <div id="dwelltime" class="dwelltime"></div>
+  <div id="repeat" class="repeat"></div>
+  <div id="stat" class="stat"></div>
+  <div id="sum" class="sum"></div>
+  <div class="footer"><a href="https://gitlab.com/Wismut"><img src="img/gl.svg" height="23px">mivanov   <a href="https://github.com/ssupremus"><img src="img/gh.png" height="25px">ysushkov</a></div>
+</body>
+</html>
